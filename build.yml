@@ -1,0 +1,50 @@
+name: Build OpenWrt RPi4 (Custom IPK + WiFi + RootFS)
+
+on:
+  workflow_dispatch:
+    inputs:
+      rootfs_size:
+        description: "RootFS size in MB"
+        default: "2048"
+        required: true
+      ipk_url:
+        description: "URL custom IPK (optional)"
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential zstd wget
+
+      - name: Download ImageBuilder
+        run: |
+          wget https://downloads.openwrt.org/releases/24.10.5/targets/bcm27xx/bcm2711/openwrt-imagebuilder-24.10.5-bcm27xx-bcm2711.Linux-x86_64.tar.zst
+          tar --zstd -xf openwrt-imagebuilder-24.10.5-bcm27xx-bcm2711.Linux-x86_64.tar.zst
+
+      - name: Inject IPK (if provided)
+        if: ${{ github.event.inputs.ipk_url != '' }}
+        run: |
+          wget -O custom.ipk "${{ github.event.inputs.ipk_url }}"
+          cp custom.ipk openwrt-imagebuilder-*/packages/
+
+      - name: Build Firmware
+        run: |
+          cd openwrt-imagebuilder-24.10.5-bcm27xx-bcm2711.Linux-x86_64
+          echo "CONFIG_TARGET_ROOTFS_PARTSIZE=${{ github.event.inputs.rootfs_size }}" >> .config
+
+          make image \
+            PROFILE="rpi-4" \
+            PACKAGES="luci luci-app-neko" \
+            FILES="../files"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-rpi4-custom
+          path: openwrt-imagebuilder-*/bin/targets/
