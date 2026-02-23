@@ -33,6 +33,10 @@ jobs:
           wget -O luci-app-openclash.ipk "https://github.com/Yogxx/OpenClash/releases/download/v0.47.055/luci-app-openclash_0.47.055_all.ipk"
           cp luci-app-openclash.ipk openwrt-imagebuilder-*/packages/
 
+      - name: Copy Custom IPK
+        run: |
+          cp custom-packages/*.ipk openwrt-imagebuilder-*/packages/
+      
       - name: Build Firmware
         run: |
           cd openwrt-imagebuilder-24.10.5-bcm27xx-bcm2711.Linux-x86_64
@@ -74,7 +78,7 @@ jobs:
             \
             ruby ruby-yaml ruby-psych ruby-stringio ruby-pstore ruby-enc ruby-digest ruby-date ruby-bigdecimal \
             \
-            luci-app-openclash \
+            luci-app-openclash nikki luci-app-nikki \
             \
             jq yq vnstat2 luci-app-vnstat2" \
             FILES="../files"
