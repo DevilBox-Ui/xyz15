@@ -7,9 +7,6 @@ on:
         description: "RootFS size in MB"
         default: "1024"
         required: true
-      ipk_url:
-        description: "URL custom IPK (optional)"
-        required: false
 
 jobs:
   build:
@@ -31,11 +28,10 @@ jobs:
           wget https://downloads.openwrt.org/releases/24.10.5/targets/bcm27xx/bcm2711/openwrt-imagebuilder-24.10.5-bcm27xx-bcm2711.Linux-x86_64.tar.zst
           tar --zstd -xf openwrt-imagebuilder-24.10.5-bcm27xx-bcm2711.Linux-x86_64.tar.zst
 
-      - name: Inject IPK (if provided)
-        if: ${{ github.event.inputs.ipk_url != '' }}
+      - name: Custom IPK
         run: |
-          wget -O custom.ipk "${{ github.event.inputs.ipk_url }}"
-          cp custom.ipk openwrt-imagebuilder-*/packages/
+          wget -O luci-app-openclash.ipk "https://github.com/Yogxx/OpenClash/releases/download/v0.47.055/luci-app-openclash_0.47.055_all.ipk"
+          cp luci-app-openclash.ipk openwrt-imagebuilder-*/packages/
 
       - name: Build Firmware
         run: |
@@ -78,6 +74,8 @@ jobs:
             \
             ruby ruby-yaml ruby-psych ruby-stringio ruby-pstore ruby-enc ruby-digest ruby-date ruby-bigdecimal \
             \
+            luci-app-openclash \
+            \
             jq yq vnstat2 luci-app-vnstat2" \
             FILES="../files"
 
@@ -85,3 +83,4 @@ jobs:
         with:
           name: openwrt-custom
           path: openwrt-imagebuilder-*/bin/targets/
+          
