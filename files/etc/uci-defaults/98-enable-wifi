@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# Generate wireless config jika belum ada
+[ ! -f /etc/config/wireless ] && wifi config
+
+# Enable radio0
+uci set wireless.radio0.disabled='0'
+
+# Configure WiFi AP
+uci set wireless.@wifi-iface[0].mode='ap'
+uci set wireless.@wifi-iface[0].network='lan'
+uci set wireless.@wifi-iface[0].ssid='Raspi4'
+uci set wireless.@wifi-iface[0].encryption='psk2'
+uci set wireless.@wifi-iface[0].key='12345678'
+
+uci commit wireless
+
+wifi reload
+
+exit 0
