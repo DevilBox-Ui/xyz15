@@ -1,0 +1,87 @@
+name: OpenWrt RPi4 Dual
+
+on:
+  workflow_dispatch:
+    inputs:
+      rootfs_size:
+        description: "RootFS size in MB"
+        default: "1024"
+        required: true
+
+      version:
+        description: "Select OpenWrt version"
+        required: true
+        default: "25.12.0-rc5"
+        type: choice
+        options:
+          - "24.10.5"
+          - "25.12.0-rc5"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential zstd wget tar
+
+      - name: Set ImageBuilder Variables
+        run: |
+          if [[ "${{ github.event.inputs.version }}" == "24.10.5" ]]; then
+            IB_NAME="openwrt-imagebuilder-24.10.5-bcm27xx-bcm2711.Linux-x86_64"
+            IB_URL="https://downloads.openwrt.org/releases/24.10.5/targets/bcm27xx/bcm2711/${IB_NAME}.tar.zst"
+          else
+            IB_NAME="openwrt-imagebuilder-25.12.0-rc5-bcm27xx-bcm2711.Linux-x86_64"
+            IB_URL="https://downloads.openwrt.org/releases/25.12.0-rc5/targets/bcm27xx/bcm2711/${IB_NAME}.tar.zst"
+          fi
+
+          echo "IB_NAME=$IB_NAME" >> $GITHUB_ENV
+          echo "IB_URL=$IB_URL" >> $GITHUB_ENV
+
+      - name: Download ImageBuilder
+        run: |
+          wget $IB_URL
+          tar --zstd -xf ${IB_NAME}.tar.zst
+
+      - name: Make all uci-defaults executable
+        run: chmod +x files/etc/uci-defaults/* || true
+
+      - name: Inject OpenClash IPK
+        run: |
+          wget -O luci-app-openclash.ipk \
+          https://github.com/Yogxx/OpenClash/releases/download/v0.47.055/luci-app-openclash_0.47.055_all.ipk
+          cp luci-app-openclash.ipk $IB_NAME/packages/
+
+      - name: Copy Local Custom IPKs
+        run: |
+          cp custom-packages/*.ipk $IB_NAME/packages/ 2>/dev/null || true
+
+      - name: Configure RootFS Size
+        run: |
+          cd $IB_NAME
+          echo "CONFIG_TARGET_ROOTFS_PARTSIZE=${{ github.event.inputs.rootfs_size }}" >> .config
+          make defconfig
+
+      - name: Build Firmware
+        run: |
+          cd $IB_NAME
+          make image \
+            PROFILE="rpi-4" \
+            PACKAGES="\
+            -dnsmasq -wget-nossl -libustream-mbedtls \
+            dnsmasq-full libiwinfo-data liblua lua \
+            liblucihttp liblucihttp-lua libubus-lua libuci-lua \
+            luci luci-light luci-base luci-compat luci-lua-runtime \
+            jq yq vnstat2 luci-app-vnstat2" \
+            FILES="../files"
+
+      - name: Upload Firmware Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-rpi4-${{ github.event.inputs.version }}
+          path: ${{ env.IB_NAME }}/bin/targets/bcm27xx/bcm2711/*
