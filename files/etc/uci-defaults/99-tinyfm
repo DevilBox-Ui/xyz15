@@ -28,5 +28,8 @@ EOF
 chmod 644 /usr/lib/lua/luci/controller/tinyfm.lua
 chmod 644 /usr/lib/lua/luci/view/tinyfm.htm
 
+# Membuat symlink untuk /www/tinyfm/rootfs
+ln -sf / /www/tinyfm/rootfs
+
 # Menandai skrip ini sudah dijalankan
 touch /etc/uci-defaults/99-tinyfm
