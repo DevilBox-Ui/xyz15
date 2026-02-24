@@ -51,17 +51,20 @@ jobs:
       - name: Make uci-defaults executable
         run: chmod +x files/etc/uci-defaults/* 2>/dev/null || true
 
-      - name: Inject OpenClash IPK
+      - name: Inject OpenClash IPK (24.10 only)
+        if: github.event.inputs.version == '24.10.5'
         run: |
           wget -O luci-app-openclash.ipk \
           https://github.com/Yogxx/OpenClash/releases/download/v0.47.055/luci-app-openclash_0.47.055_all.ipk
           cp luci-app-openclash.ipk $IB_NAME/packages/
 
-      - name: Copy Local Custom IPKs
+      - name: Copy Local Custom IPKs (24.10 only)
+        if: github.event.inputs.version == '24.10.5'
         run: |
           cp custom-packages/*.ipk $IB_NAME/packages/ 2>/dev/null || true
 
-      - name: Build Firmware
+      - name: Build Firmware (24.10)
+        if: github.event.inputs.version == '24.10.5'
         run: |
           cd $IB_NAME
           make image \
@@ -89,6 +92,38 @@ jobs:
             php8-mod-zip php8-mod-iconv php8-mod-mbstring zoneinfo-core zoneinfo-asia \
             ruby ruby-yaml ruby-psych ruby-stringio ruby-pstore ruby-enc ruby-digest ruby-date ruby-bigdecimal \
             luci-app-tinyfm luci-app-openclash nikki luci-app-nikki \
+            jq yq vnstat2 luci-app-vnstat2" \
+            FILES="../files"
+
+      - name: Build Firmware (25.12)
+        
+        if: github.event.inputs.version == '25.12.0-rc5'
+        run: |
+          cd $IB_NAME
+          make image \
+            PROFILE="rpi-4" \
+            ROOTFS_PARTSIZE=${{ github.event.inputs.rootfs_size }} \
+            PACKAGES="\
+            -dnsmasq -wget-nossl -libustream-mbedtls \
+            dnsmasq-full libiwinfo-data liblua lua liblucihttp liblucihttp-lua libubus-lua libuci-lua luci luci-light luci-base luci-compat luci-lua-runtime \
+            luci-lib-base luci-lib-ip luci-lib-jsonc luci-lib-nixio luci-mod-admin-full luci-mod-network luci-mod-status luci-mod-system \
+            luci-theme-bootstrap luci-theme-material \
+            luci-app-firewall luci-app-package-manager \
+            rpcd rpcd-mod-file rpcd-mod-luci rpcd-mod-rrdns uhttpd uhttpd-mod-ubus \
+            kmod-mii kmod-usb-core kmod-usb-net kmod-usb-net-rtl8150 kmod-usb-net-rtl8152 kmod-usb-net-asix kmod-usb-net-asix-ax88179 \
+            kmod-usb-net-rndis kmod-usb-net-cdc-ncm kmod-usb-net-huawei-cdc-ncm kmod-usb-net-cdc-ether kmod-usb-net-qmi-wwan kmod-usb-net-sierrawireless \
+            kmod-usb-serial kmod-usb-serial-sierrawireless kmod-usb-serial-qualcomm kmod-usb-serial-wwan kmod-usb-serial-option kmod-usb-acm usbutils \
+            kmod-tun kmod-nft-tproxy kmod-nft-socket kmod-inet-diag kmod-netlink-diag \
+            openssl-util libopenssl-conf libustream-openssl ca-bundle \
+            coreutils coreutils-base64 coreutils-nohup coreutils-stat \
+            lsblk blkid parted e2fsprogs btrfs-progs \
+            bash nano curl wget-ssl htop tcpdump ethtool lsof iperf3 bzip2 unzip openssh-sftp-server ttyd luci-app-ttyd usbutils adb \
+            uqmi umbim qmi-utils mbim-utils modemmanager luci-proto-modemmanager chat comgt sms-tool \
+            ip-full kmod-inet-diag kmod-nft-socket kmod-nft-tproxy kmod-tun \
+            microsocks xray-core sing-box v2ray-geosite v2ray-geoip \
+            php8 php8-cgi php8-fpm php8-fastcgi php8-mod-session php8-mod-ctype php8-mod-fileinfo \
+            php8-mod-zip php8-mod-iconv php8-mod-mbstring zoneinfo-core zoneinfo-asia \
+            ruby ruby-yaml ruby-psych ruby-stringio ruby-pstore ruby-enc ruby-digest ruby-date ruby-bigdecimal \
             jq yq vnstat2 luci-app-vnstat2" \
             FILES="../files"
 
