@@ -63,6 +63,8 @@ jobs:
         run: |
           wget https://github.com/Yogxx/OpenClash/releases/download/v0.47.055/luci-app-openclash-0.47.055.apk
           cp luci-app-openclash-0.47.055.apk $IB_NAME/packages/
+          cd $IB_NAME
+          ./scripts/apk update
 
       - name: Inject Neko IPK (24.10 only)
         if: github.event.inputs.version == '24.10.5'
@@ -76,6 +78,8 @@ jobs:
         run: |
           wget https://github.com/Yogxx/openwrt-neko/releases/download/v1.3.0-5/luci-app-neko_1.3.0-r5.apk
           cp luci-app-neko_1.3.0-r5.apk $IB_NAME/packages/
+          cd $IB_NAME
+          ./scripts/apk update
 
       - name: Copy Local Custom IPKs (24.10 only)
         if: github.event.inputs.version == '24.10.5'
