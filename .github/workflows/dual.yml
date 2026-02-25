@@ -89,6 +89,14 @@ jobs:
         run: |
           cp custom-packages/*.apk $IB_NAME/packages/ 2>/dev/null || true
 
+      - name: Generate Custom APK Index (25.12 only)
+        if: github.event.inputs.version == '25.12.0-rc5'
+        run: |
+          cd $IB_NAME
+          ./staging_dir/host/bin/apk index \
+          -o packages/custom/packages.adb \
+          packages/custom/*.apk
+      
       - name: Build Firmware (24.10)
         if: github.event.inputs.version == '24.10.5'
         run: |
