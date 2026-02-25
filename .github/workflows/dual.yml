@@ -58,26 +58,12 @@ jobs:
           https://github.com/Yogxx/OpenClash/releases/download/v0.47.055/luci-app-openclash_0.47.055_all.ipk
           cp luci-app-openclash.ipk $IB_NAME/packages/
 
-      - name: Inject OpenClash APK (25.12 only)
-        if: github.event.inputs.version == '25.12.0-rc5'
-        run: |
-          wget https://github.com/Yogxx/OpenClash/releases/download/v0.47.055/luci-app-openclash-0.47.055.apk
-          mkdir -p $IB_NAME/packages/custom
-          cp luci-app-openclash-0.47.055.apk $IB_NAME/packages/custom/
-
       - name: Inject Neko IPK (24.10 only)
         if: github.event.inputs.version == '24.10.5'
         run: |
           wget -O luci-app-neko.ipk \
           https://github.com/Yogxx/openwrt-neko/releases/download/v1.3.0-5/luci-app-neko_1.3.0-r5_all.ipk
           cp luci-app-neko.ipk $IB_NAME/packages/
-
-      - name: Inject Neko APK (25.12 only)
-        if: github.event.inputs.version == '25.12.0-rc5'
-        run: |
-          wget https://github.com/Yogxx/openwrt-neko/releases/download/v1.3.0-5/luci-app-neko_1.3.0-r5.apk
-          mkdir -p $IB_NAME/packages/custom
-          cp luci-app-neko_1.3.0-r5.apk $IB_NAME/packages/custom
 
       - name: Copy Local Custom IPKs (24.10 only)
         if: github.event.inputs.version == '24.10.5'
@@ -88,14 +74,6 @@ jobs:
         if: github.event.inputs.version == '25.12.0-rc5'
         run: |
           cp custom-packages/*.apk $IB_NAME/packages/ 2>/dev/null || true
-
-      - name: Generate Custom APK Index (25.12 only)
-        if: github.event.inputs.version == '25.12.0-rc5'
-        run: |
-          cd $IB_NAME
-          ./staging_dir/host/bin/apk index \
-          -o packages/custom/packages.adb \
-          packages/custom/*.apk
       
       - name: Build Firmware (24.10)
         if: github.event.inputs.version == '24.10.5'
