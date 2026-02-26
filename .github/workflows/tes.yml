@@ -81,19 +81,12 @@ jobs:
             zoneinfo-core zoneinfo-asia" \
             FILES="../files"
 
-      - name: Rename Firmware
-        run: |
-          cd $IB_NAME/bin/targets/x86/64
-          FILE=$(ls *combined*.img.gz | head -n 1)
-          NEWNAME="openwrt-x86-${VERSION}-${{ github.event.inputs.rootfs_size }}MB.img.gz"
-          mv "$FILE" "$NEWNAME"
-          echo "FIRMWARE_PATH=$PWD/$NEWNAME" >> $GITHUB_ENV
-
       - name: Upload Firmware to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ env.VERSION }}-${{ github.run_number }}
-          name: OpenWrt ${{ env.VERSION }} Build ${{ github.run_number }}
-          files: ${{ env.FIRMWARE_PATH }}
+          tag_name: v${{ github.event.inputs.version }}-${{ github.run_number }}
+          name: OpenWrt ${{ github.event.inputs.version }} Build ${{ github.run_number }}
+          files: |
+            ${{ env.IB_NAME }}/bin/targets/x86/64/*.img.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
