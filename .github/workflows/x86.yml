@@ -143,4 +143,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-x86-${{ github.event.inputs.version }}-${{ github.event.inputs.rootfs_size }}MB
-          path: ${{ env.IB_NAME }}/bin/targets/bcm27xx/bcm2711/*
+          path: ${{ env.IB_NAME }}/bin/targets/x86/64/*
