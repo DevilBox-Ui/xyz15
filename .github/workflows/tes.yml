@@ -1,0 +1,99 @@
+name: OpenWrt x86
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      rootfs_size:
+        description: "RootFS size in MB"
+        default: "1024"
+        required: true
+      version:
+        description: "Select OpenWrt version"
+        required: true
+        default: "25.12.0-rc5"
+        type: choice
+        options:
+          - "24.10.5"
+          - "25.12.0-rc5"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential zstd wget tar
+
+      - name: Set ImageBuilder Variables
+        run: |
+          VERSION=${{ github.event.inputs.version }}
+
+          IB_NAME="openwrt-imagebuilder-${VERSION}-x86-64.Linux-x86_64"
+          IB_URL="https://downloads.openwrt.org/releases/${VERSION}/targets/x86/64/${IB_NAME}.tar.zst"
+
+          echo "IB_NAME=$IB_NAME" >> $GITHUB_ENV
+          echo "IB_URL=$IB_URL" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Download ImageBuilder
+        run: |
+          wget $IB_URL
+          tar --zstd -xf ${IB_NAME}.tar.zst
+
+      - name: Make uci-defaults executable
+        run: chmod +x files/etc/uci-defaults/* 2>/dev/null || true
+
+      - name: Inject Custom Packages (24.10 uses ipk)
+        if: github.event.inputs.version == '24.10.5'
+        run: |
+          cp custom-packages/*.ipk $IB_NAME/packages/ 2>/dev/null || true
+
+      - name: Inject Custom Packages (25.12 uses apk)
+        if: github.event.inputs.version == '25.12.0-rc5'
+        run: |
+          cp custom-packages/*.apk $IB_NAME/packages/ 2>/dev/null || true
+
+      - name: Build Firmware
+        run: |
+          cd $IB_NAME
+          make image \
+            PROFILE="generic" \
+            ROOTFS_PARTSIZE=${{ github.event.inputs.rootfs_size }} \
+            PACKAGES="\
+            -dnsmasq -wget-nossl -libustream-mbedtls \
+            dnsmasq-full luci luci-light luci-app-firewall luci-app-package-manager \
+            luci-theme-bootstrap luci-theme-material \
+            rpcd rpcd-mod-file rpcd-mod-luci rpcd-mod-rrdns \
+            uhttpd uhttpd-mod-ubus \
+            kmod-tun kmod-nft-tproxy kmod-nft-socket \
+            openssl-util libustream-openssl ca-bundle \
+            bash nano curl wget-ssl htop tcpdump \
+            ip-full jq yq \
+            luci-app-tinyfm luci-app-openclash \
+            zoneinfo-core zoneinfo-asia" \
+            FILES="../files"
+
+      - name: Rename Firmware
+        run: |
+          cd $IB_NAME/bin/targets/x86/64
+          FILE=$(ls *combined*.img.gz | head -n 1)
+          NEWNAME="openwrt-x86-${VERSION}-${{ github.event.inputs.rootfs_size }}MB.img.gz"
+          mv "$FILE" "$NEWNAME"
+          echo "FIRMWARE_PATH=$PWD/$NEWNAME" >> $GITHUB_ENV
+
+      - name: Upload Firmware to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}-${{ github.run_number }}
+          name: OpenWrt ${{ env.VERSION }} Build ${{ github.run_number }}
+          files: ${{ env.FIRMWARE_PATH }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
