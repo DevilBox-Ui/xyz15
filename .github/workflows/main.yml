@@ -51,7 +51,7 @@ jobs:
       - name: Set CONFIG_VERSION_REPO
         run: |
           cd ${IB_NAME}
-          sed -i 's|CONFIG_VERSION_REPO=.*|CONFIG_VERSION_REPO="URL"|g' .config
+          sed -i 's|CONFIG_VERSION_REPO=.*|CONFIG_VERSION_REPO="https://mirror.nju.edu.cn/immortalwrt/releases/${VERSION}"|g' .config
 
       - name: Modify repositories.conf
         run: |
