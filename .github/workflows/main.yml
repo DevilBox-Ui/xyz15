@@ -105,6 +105,6 @@ jobs:
           tag_name: v${{ github.event.inputs.version }}-${{ github.run_number }}
           name: OpenWrt ${{ github.event.inputs.version }} Build ${{ github.run_number }}
           files: |
-            ${{ env.IB_NAME }}/bin/targets/x86/64/*.img.gz
+            ${{ env.IB_NAME }}/bin/targets/bcm27xx/bcm2711/*.img.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
