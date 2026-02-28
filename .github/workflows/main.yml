@@ -48,18 +48,10 @@ jobs:
           wget $IB_URL
           tar --zstd -xf ${IB_NAME}.tar.zst
 
-      - name: Overwrite repositories.conf
+      - name: Modify repositories.conf
         run: |
           cd ${IB_NAME}
-          cat > repositories.conf << EOF
-          src/gz immortalwrt_core https://mirror.nju.edu.cn/immortalwrt/releases/${VERSION}/targets/bcm27xx/bcm2711/packages
-          src/gz immortalwrt_base https://mirror.nju.edu.cn/immortalwrt/releases/${VERSION}/packages/aarch64_cortex-a72/base
-          src/gz immortalwrt_kmods https://mirror.nju.edu.cn/immortalwrt/releases/${VERSION}/targets/bcm27xx/bcm2711/kmods/$(ls targets/bcm27xx/bcm2711/kmods/)
-          src/gz immortalwrt_luci https://mirror.nju.edu.cn/immortalwrt/releases/${VERSION}/packages/aarch64_cortex-a72/luci
-          src/gz immortalwrt_packages https://mirror.nju.edu.cn/immortalwrt/releases/${VERSION}/packages/aarch64_cortex-a72/packages
-          src/gz immortalwrt_routing https://mirror.nju.edu.cn/immortalwrt/releases/${VERSION}/packages/aarch64_cortex-a72/routing
-          src/gz immortalwrt_telephony https://mirror.nju.edu.cn/immortalwrt/releases/${VERSION}/packages/aarch64_cortex-a72/telephony
-          EOF
+          sed -i 's#https://downloads.immortalwrt.org#https://mirror.nju.edu.cn/immortalwrt#g' repositories.conf
 
       - name: Make uci-defaults executable
         run: chmod +x files/etc/uci-defaults/* 2>/dev/null || true
