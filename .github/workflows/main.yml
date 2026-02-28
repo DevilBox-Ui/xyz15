@@ -48,6 +48,19 @@ jobs:
           wget $IB_URL
           tar --zstd -xf ${IB_NAME}.tar.zst
 
+      - name: Overwrite repositories.conf
+        run: |
+          cd ${IB_NAME}
+          cat > repositories.conf << EOF
+          src/gz immortalwrt_core https://mirror.nju.edu.cn/immortalwrt/releases/${VERSION}/targets/bcm27xx/bcm2711/packages
+          src/gz immortalwrt_base https://mirror.nju.edu.cn/immortalwrt/releases/${VERSION}/packages/aarch64_cortex-a72/base
+          src/gz immortalwrt_kmods https://mirror.nju.edu.cn/immortalwrt/releases/${VERSION}/targets/bcm27xx/bcm2711/kmods/$(ls targets/bcm27xx/bcm2711/kmods/)
+          src/gz immortalwrt_luci https://mirror.nju.edu.cn/immortalwrt/releases/${VERSION}/packages/aarch64_cortex-a72/luci
+          src/gz immortalwrt_packages https://mirror.nju.edu.cn/immortalwrt/releases/${VERSION}/packages/aarch64_cortex-a72/packages
+          src/gz immortalwrt_routing https://mirror.nju.edu.cn/immortalwrt/releases/${VERSION}/packages/aarch64_cortex-a72/routing
+          src/gz immortalwrt_telephony https://mirror.nju.edu.cn/immortalwrt/releases/${VERSION}/packages/aarch64_cortex-a72/telephony
+          EOF
+
       - name: Make uci-defaults executable
         run: chmod +x files/etc/uci-defaults/* 2>/dev/null || true
 
@@ -65,7 +78,7 @@ jobs:
         run: |
           cd $IB_NAME
           make image \
-            PROFILE="generic" \
+            PROFILE="rpi-4" \
             ROOTFS_PARTSIZE=${{ github.event.inputs.rootfs_size }} \
             PACKAGES="\
             -dnsmasq -wget-nossl -libustream-mbedtls -default-settings-chn -luci-i18n-base-zh-cn -luci-app-rclone_INCLUDE_rclone-webui -luci-app-rclone_INCLUDE_rclone-ng \
