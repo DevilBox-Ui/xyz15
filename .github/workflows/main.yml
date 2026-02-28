@@ -48,6 +48,11 @@ jobs:
           wget $IB_URL
           tar --zstd -xf ${IB_NAME}.tar.zst
 
+      - name: Set CONFIG_VERSION_REPO
+        run: |
+          cd ${IB_NAME}
+          sed -i 's|CONFIG_VERSION_REPO=.*|CONFIG_VERSION_REPO="URL"|g' .config
+
       - name: Modify repositories.conf
         run: |
           cd ${IB_NAME}
