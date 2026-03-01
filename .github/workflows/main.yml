@@ -103,7 +103,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.event.inputs.version }}-${{ github.run_number }}
-          name: OpenWrt ${{ github.event.inputs.version }} Build ${{ github.run_number }}
+          name: ImmortalWrt ${{ github.event.inputs.version }} Build ${{ github.run_number }}
           files: |
             ${{ env.IB_NAME }}/bin/targets/bcm27xx/bcm2711/*.img.gz
         env:
