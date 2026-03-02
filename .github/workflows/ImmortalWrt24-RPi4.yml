@@ -79,7 +79,7 @@ jobs:
             ROOTFS_PARTSIZE=${{ github.event.inputs.rootfs_size }} \
             PACKAGES="\
             -dnsmasq -wget-nossl -libustream-mbedtls -default-settings-chn -luci-i18n-base-zh-cn -luci-app-rclone_INCLUDE_rclone-webui -luci-app-rclone_INCLUDE_rclone-ng \
-            dnsmasq-full luci luci-light \
+            dnsmasq-full luci luci-base luci-compat luci-lib-nixio luci-lib-ip luci-lua-runtime luci-compat luci-light \
             luci-theme-bootstrap luci-theme-material \
             luci-app-firewall luci-app-package-manager \
             kmod-mii kmod-usb-core kmod-usb-net kmod-usb-net-rtl8150 kmod-usb-net-rtl8152 kmod-usb-net-asix kmod-usb-net-asix-ax88179 \
