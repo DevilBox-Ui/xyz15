@@ -5,6 +5,7 @@
 
 # Enable radio0
 uci set wireless.radio0.disabled='0'
+uci set wireless.radio0.country='ID'
 
 # Configure WiFi AP
 uci set wireless.@wifi-iface[0].mode='ap'
