@@ -53,10 +53,10 @@ jobs:
           cd ${IB_NAME}
           sed -i 's|CONFIG_VERSION_REPO=.*|CONFIG_VERSION_REPO="https://mirror.nju.edu.cn/immortalwrt/releases/${VERSION}"|g' .config
 
-      - name: Modify repositories.conf
+      - name: Modify repositories
         run: |
           cd ${IB_NAME}
-          sed -i 's#https://downloads.immortalwrt.org#https://mirror.nju.edu.cn/immortalwrt#g' repositories.conf
+          sed -i 's#https://downloads.immortalwrt.org#https://mirror.nju.edu.cn/immortalwrt#g' repositories
 
       - name: Make uci-defaults executable
         run: chmod +x files/etc/uci-defaults/* 2>/dev/null || true
