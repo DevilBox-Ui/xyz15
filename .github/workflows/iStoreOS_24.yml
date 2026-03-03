@@ -47,6 +47,7 @@ jobs:
       - name: Build Firmware
         run: |
           cd $IB_NAME
+          make info
           make image \
             PROFILE="rpi-4" \
             FILESYSTEMS="ext4 squashfs" \
