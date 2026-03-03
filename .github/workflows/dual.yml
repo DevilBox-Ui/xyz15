@@ -1,5 +1,8 @@
 name: OpenWrt RPi4 Dual
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
     inputs:
@@ -104,8 +107,12 @@ jobs:
             jq yq vnstat2 luci-app-vnstat2" \
             FILES="../files"
 
-      - name: Upload Firmware Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Firmware to GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: openwrt-rpi4-${{ github.event.inputs.version }}-${{ github.event.inputs.rootfs_size }}MB
-          path: ${{ env.IB_NAME }}/bin/targets/bcm27xx/bcm2711/*
+          tag_name: v${{ github.event.inputs.version }}-${{ github.run_number }}
+          name: OpenWrt ${{ github.event.inputs.version }} Build ${{ github.run_number }}
+          files: |
+            ${{ env.IB_NAME }}/bin/targets/bcm27xx/bcm2711/*.img.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
