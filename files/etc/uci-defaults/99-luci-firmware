@@ -2,7 +2,7 @@
 
 mount -o remount,rw /
 
-sed -i "s|boardinfo.release.revision|(L.isObject(boardinfo.release)?boardinfo.release.description+'':'')|" \
+sed -i "s|[[:space:]]*+(luciversion||'')||" \
 /www/luci-static/resources/view/status/include/10_system.js
 
 # Patch OPENWRT_RELEASE
