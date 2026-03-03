@@ -68,11 +68,6 @@ jobs:
         run: |
           cp custom-packages/*.apk $IB_NAME/packages/ 2>/dev/null || true
       
-      - name: Custom OPENWRT_RELEASE
-        run: |
-          mkdir -p files/usr/lib
-          echo 'OPENWRT_RELEASE="OpenWrt 25.12.0 by Yogxx"' > files/usr/lib/os-release
-      
       - name: Build Firmware
         run: |
           cd $IB_NAME
