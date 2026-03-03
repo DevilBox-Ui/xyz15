@@ -52,25 +52,20 @@ jobs:
             ROOTFS_PARTSIZE=${{ github.event.inputs.rootfs_size }} \
             PACKAGES="\
             -dnsmasq -wget-nossl -libustream-mbedtls -default-settings-chn -luci-i18n-base-zh-cn -luci-app-rclone_INCLUDE_rclone-webui -luci-app-rclone_INCLUDE_rclone-ng \
+            -luci-app-store -luci-i18n-ddnsto-zh-cn -luci-app-mergerfs -mergerfs -luci-app-quickstart -quickstart -luci-app-istorex -luci-lib-taskd -luci-app-dockerman -docker-compose -luci-lib-docker -docker -dockerd -luci-app-filetransfer -luci-app-cifs-mount -luci-app-ota -luci-app-unishare -luci-i18n-unishare-zh-cn -unishare -luci-app-wol -luci-i18n-wol-zh-cn -etherwake -luci-app-ddnsto -ddnsto -luci-app-samba4 -samba4-server -luci-app-argon-config -luci-app-hd-idle -hd-idle -luci-app-fan -luci-app-upnp -luci-i18n-upnp-zh-cn -miniupnpd -luci-app-nfs -nfs-utils -nfs-kernel-server -nfs-kernel-server-utils -davfs2 -kmod-fs-cifs -luci-app-ddns -ddns -luci-app-linkease -linkease -luci-app-oaf -appfilter -kmod-oaf -luci-i18n-ttyd-zh-cn -luci-i18n-samba4-zh-cn -luci-i18n-quickstart-zh-cn -luci-i18n-package-manager-zh-cn -luci-i18n-ota-zh-cn -luci-i18n-oaf-zh-cn -luci-i18n-nfs-zh-cn -luci-i18n-mergerfs-zh-cn -luci-i18n-linkease-zh-cn -luci-i18n-hd-idle-zh-cn -luci-i18n-firewall-zh-cn -luci-i18n-filetransfer-zh-cn -luci-i18n-fan-zh-cn -luci-i18n-dockerman-zh-cn -luci-i18n-diskman-zh-cn -luci-i18n-ddnsto-zh-cn -luci-i18n-ddns-zh-cn -luci-i18n-cpufreq-zh-cn -luci-i18n-cifs-mount-zh-cn -luci-i18n-base-zh-cn -luci-i18n-argon-zh-cn -luci-i18n-argon-config-zh-cn \
             dnsmasq-full luci luci-base luci-compat luci-lib-nixio luci-lib-ip luci-lua-runtime luci-light libuci-lua \
             luci-mod-admin-full luci-mod-network luci-mod-status rpcd-mod-luci luci-lib-jsonc \
-            luci-theme-bootstrap luci-theme-material \
+            luci-theme-bootstrap \
             luci-app-firewall luci-app-package-manager \
             kmod-mii kmod-usb-core kmod-usb-net kmod-usb-net-rtl8150 kmod-usb-net-rtl8152 kmod-usb-net-asix kmod-usb-net-asix-ax88179 \
             kmod-usb-net-rndis kmod-usb-net-cdc-ncm kmod-usb-net-huawei-cdc-ncm kmod-usb-net-cdc-ether kmod-usb-net-qmi-wwan kmod-usb-net-sierrawireless \
             kmod-usb-serial kmod-usb-serial-sierrawireless kmod-usb-serial-qualcomm kmod-usb-serial-wwan kmod-usb-serial-option kmod-usb-acm usbutils \
             kmod-tun kmod-nft-tproxy kmod-nft-socket kmod-inet-diag kmod-netlink-diag \
             openssl-util libopenssl-conf libustream-openssl ca-bundle \
-            coreutils coreutils-base64 coreutils-nohup coreutils-stat \
+            coreutils coreutils-stat \
             lsblk blkid parted e2fsprogs btrfs-progs ip-full \
-            bash nano curl wget-ssl htop tcpdump ethtool lsof iperf3 bzip2 unzip openssh-sftp-server ttyd luci-app-ttyd adb \
-            uqmi umbim qmi-utils mbim-utils modemmanager luci-proto-modemmanager chat comgt sms-tool \
-            microsocks xray-core sing-box v2ray-geosite v2ray-geoip \
-            php8 php8-cgi php8-fpm php8-fastcgi php8-mod-session php8-mod-ctype php8-mod-fileinfo \
-            php8-mod-zip php8-mod-iconv php8-mod-mbstring zoneinfo-core zoneinfo-asia \
-            ruby ruby-yaml ruby-psych ruby-stringio ruby-pstore ruby-enc ruby-digest ruby-date ruby-bigdecimal \
-            luci-app-tinyfm luci-app-openclash \
-            jq yq vnstat2 luci-app-vnstat2" \
+            bash curl wget-ssl htop tcpdump ethtool iperf3 bzip2 unzip openssh-sftp-server ttyd luci-app-ttyd adb \
+            uqmi umbim qmi-utils modemmanager luci-proto-modemmanager chat comgt" \
             FILES="../files"
 
       - name: Upload Firmware to GitHub Release
