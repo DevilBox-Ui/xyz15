@@ -3,11 +3,21 @@
 # Remount rootfs ext4
 mount -o remount,rw /
 
-# Patch Firmware Version di LuCI
+####################################
+# Patch LuCI Firmware Version
+####################################
 sed -i "s|_('Firmware Version').*|_('Firmware Version'),(L.isObject(boardinfo.release)?boardinfo.release.description+'':'')|" \
 /www/luci-static/resources/view/status/include/10_system.js
 
+####################################
+# Patch OPENWRT_RELEASE
+####################################
+sed -i 's|^OPENWRT_RELEASE=.*|OPENWRT_RELEASE="OpenWrt 25.12.0 by Yogxx"|' \
+/usr/lib/os-release
+
+####################################
 # Bersihkan cache LuCI
+####################################
 rm -f /tmp/luci-indexcache
 
 exit 0
