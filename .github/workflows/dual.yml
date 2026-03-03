@@ -68,6 +68,14 @@ jobs:
         run: |
           cp custom-packages/*.apk $IB_NAME/packages/ 2>/dev/null || true
 
+      - name: Force Replace Firmware Version Line
+        run: |
+          mkdir -p files/www/luci-static/resources/view/status/include
+          cp -f www/luci-static/resources/view/status/include/10_system.js \
+            files/www/luci-static/resources/view/status/include/ 2>/dev/null || true
+          sed -i "/Firmware Version/c\        _('Firmware Version'),(L.isObject(boardinfo.release)?boardinfo.release.description+'':'')" \
+            files/www/luci-static/resources/view/status/include/10_system.js
+      
       - name: Custom OPENWRT_RELEASE
         run: |
           mkdir -p files/usr/lib
