@@ -44,6 +44,12 @@ jobs:
         run: |
           cp custom-packages/* $IB_NAME/packages/ 2>/dev/null || true
 
+      - name: Enable ext4 alongside squashfs
+        run: |
+          cd $IB_NAME
+          echo "CONFIG_TARGET_ROOTFS_EXT4FS=y" >> .config
+          make defconfig
+
       - name: Build Firmware
         run: |
           cd $IB_NAME
