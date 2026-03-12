@@ -71,12 +71,6 @@ jobs:
       - name: Build Firmware
         run: |
           cd $IB_NAME
-
-          EXTRA_PACKAGES=""
-          if [[ "${{ github.event.inputs.version }}" == "24.10.5" ]]; then
-            EXTRA_PACKAGES="luci-app-neko luci-app-openclash"
-          fi
-
           make image \
             PROFILE="rpi-4" \
             ROOTFS_PARTSIZE=${{ github.event.inputs.rootfs_size }} \
