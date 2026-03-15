@@ -67,6 +67,12 @@ jobs:
         if: github.event.inputs.version == '25.12.0'
         run: |
           cp custom-packages/*.apk $IB_NAME/packages/ 2>/dev/null || true
+
+      - name: Debug
+        run: |
+          cd $IB_NAME
+          cat repositories.conf
+          ls -la packages/
       
       - name: Build Firmware
         run: |
