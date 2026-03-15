@@ -55,10 +55,10 @@ jobs:
         if: github.event.inputs.version == '24.10.5'
         run: |
           wget -O luci-app-openclash.ipk \
-          https://github.com/Yogxx/OpenClash/releases/download/v0.47.055/luci-app-openclash_0.47.055_all.ipk
+          https://github.com/Yogxx/OpenClash/blob/package/master/luci-app-openclash_0.47.071_all.ipk
 
           wget -O luci-app-neko.ipk \
-          https://github.com/Yogxx/openwrt-neko/releases/download/v1.3.0-5/luci-app-neko_1.3.0-r8_all.ipk
+          https://github.com/Yogxx/openwrt-neko/releases/download/v1.3.0-5/luci-app-neko_1.3.0-r9_all.ipk
 
           cp *.ipk $IB_NAME/packages/
           cp custom-packages/*.ipk $IB_NAME/packages/ 2>/dev/null || true
