@@ -8,7 +8,7 @@ on:
     inputs:
       rootfs_size:
         description: "RootFS size in MB"
-        default: "1024"
+        default: "2048"
         required: true
       version:
         description: "Select OpenWrt version"
@@ -55,7 +55,7 @@ jobs:
         if: github.event.inputs.version == '24.10.5'
         run: |
           wget -O luci-app-openclash.ipk \
-          https://github.com/Yogxx/OpenClash/blob/package/master/luci-app-openclash_0.47.071_all.ipk
+          https://github.com/Yogxx/OpenClash/releases/download/v0.47.071/luci-app-openclash_0.47.071_all.ipk
 
           wget -O luci-app-neko.ipk \
           https://github.com/Yogxx/openwrt-neko/releases/download/v1.3.0-5/luci-app-neko_1.3.0-r9_all.ipk
@@ -71,13 +71,12 @@ jobs:
       - name: Build Firmware
         run: |
           cd $IB_NAME
-          make package_index
           make image \
             PROFILE="rpi-4" \
             ROOTFS_PARTSIZE=${{ github.event.inputs.rootfs_size }} \
             PACKAGES="\
-            -dnsmasq -wget-nossl -libubox20260213 -libustream-mbedtls \
-            dnsmasq-full libubox20260313 libiwinfo-data liblua lua liblucihttp liblucihttp-lua libubus-lua libuci-lua luci luci-light luci-base luci-compat luci-lua-runtime \
+            -dnsmasq -wget-nossl -libustream-mbedtls \
+            dnsmasq-full libiwinfo-data liblua lua liblucihttp liblucihttp-lua libubus-lua libuci-lua luci luci-light luci-base luci-compat luci-lua-runtime \
             luci-lib-base luci-lib-ip luci-lib-jsonc luci-lib-nixio luci-mod-admin-full luci-mod-network luci-mod-status luci-mod-system \
             luci-theme-material \
             luci-app-firewall luci-app-package-manager \
