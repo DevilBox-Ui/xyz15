@@ -71,6 +71,23 @@ jobs:
         run: |
           cp custom-packages/*.apk $IB_NAME/packages/ 2>/dev/null || true
 
+      - name: Remove Login Banners (25.12 only)
+        if: github.event.inputs.version == '25.12.0' || github.event.inputs.version == 'snapshots'
+        run: |
+          cat > files/etc/profile.d/00-passwordless-root.sh << 'EOF'
+          if grep -Esq '^root::' /etc/shadow ; then
+          cat << INNEREOF
+          INNEREOF
+          fi
+          EOF
+
+          cat > files/etc/profile.d/apk-cheatsheet.sh << 'EOF'
+          if [ -x /usr/bin/apk ] ; then
+          cat << INNEREOF
+          INNEREOF
+          fi
+          EOF
+
       - name: Build Firmware
         run: |
           cd $IB_NAME
