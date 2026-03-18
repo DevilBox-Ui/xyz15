@@ -1,0 +1,32 @@
+#!/bin/sh
+# /etc/uci-defaults/99-board-json-patch
+
+BOARD_JSON="/etc/board.json"
+
+# Baca model id dari board.json itu sendiri
+MODEL_ID=$(jsonfilter -i "$BOARD_JSON" -e '@.model.id' 2>/dev/null)
+
+case "$MODEL_ID" in
+    "raspberrypi,4-model-b")
+        # Patch lan: ganti device -> ports
+        if command -v jq > /dev/null 2>&1; then
+            jq '.network.lan |= (del(.device) + {"ports": ["br-lan","eth0","eth1","wwan0"]})' \
+                "$BOARD_JSON" > /tmp/board.json.tmp \
+                && mv /tmp/board.json.tmp "$BOARD_JSON"
+        fi
+        ;;
+    "x86_64"|"generic-x86-64")
+        # Patch berbeda untuk x86
+        if command -v jq > /dev/null 2>&1; then
+            jq '.network.lan |= (del(.device) + {"ports": ["br-lan","eth0","eth1"]})' \
+                "$BOARD_JSON" > /tmp/board.json.tmp \
+                && mv /tmp/board.json.tmp "$BOARD_JSON"
+        fi
+        ;;
+    *)
+        # Device tidak dikenal, skip
+        echo "Unknown model: $MODEL_ID, skipping board.json patch"
+        ;;
+esac
+
+exit 0
