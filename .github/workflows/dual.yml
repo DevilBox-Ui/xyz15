@@ -17,7 +17,9 @@ on:
         type: choice
         options:
           - "24.10.5"
+          - "24.10.6"
           - "25.12.0"
+          - "25.12.1"
           - "snapshots"
 
 jobs:
@@ -58,7 +60,7 @@ jobs:
       # ===== Version Specific Injection =====
 
       - name: Inject Extra Packages (24.10 only)
-        if: github.event.inputs.version == '24.10.5'
+        if: github.event.inputs.version == '24.10.5' || github.event.inputs.version == '24.10.6'
         run: |
           wget -O luci-app-openclash.ipk \
           https://github.com/Yogxx/OpenClash/releases/download/v0.47.071/luci-app-openclash_0.47.071_all.ipk
@@ -67,12 +69,12 @@ jobs:
           cp custom-packages/*.ipk $IB_NAME/packages/ 2>/dev/null || true
 
       - name: Copy Local Custom APKs (25.12 / snapshots only)
-        if: github.event.inputs.version == '25.12.0' || github.event.inputs.version == 'snapshots'
+        if: github.event.inputs.version == '25.12.0' || github.event.inputs.version == '25.12.1' || github.event.inputs.version == 'snapshots'
         run: |
           cp custom-packages/*.apk $IB_NAME/packages/ 2>/dev/null || true
 
       - name: Remove Login Banners (25.12 only)
-        if: github.event.inputs.version == '25.12.0' || github.event.inputs.version == 'snapshots'
+        if: github.event.inputs.version == '25.12.0' || github.event.inputs.version == '25.12.1' || github.event.inputs.version == 'snapshots'
         run: |
           mkdir -p files/etc/profile.d
           
