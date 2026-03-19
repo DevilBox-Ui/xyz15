@@ -57,6 +57,12 @@ jobs:
       - name: Make uci-defaults executable
         run: chmod +x files/etc/uci-defaults/* 2>/dev/null || true
 
+      - name: Patch OPENWRT_RELEASE
+        if: github.event.inputs.version == '25.12.0' || github.event.inputs.version == '25.12.1' || github.event.inputs.version == '24.10.5' || github.event.inputs.version == '24.10.6' || github.event.inputs.version == 'snapshots'
+        run: |
+          sed -i "s|^OPENWRT_RELEASE=.*|OPENWRT_RELEASE=\"OpenWrt ${{ github.event.inputs.version }} by Yogxx\"|" \
+            ${{ env.IB_NAME }}/usr/lib/os-release
+
       # ===== Version Specific Injection =====
 
       - name: Inject Extra Packages (24.10 only)
