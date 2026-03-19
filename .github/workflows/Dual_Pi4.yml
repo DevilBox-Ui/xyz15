@@ -77,6 +77,16 @@ jobs:
           cp *.apk $IB_NAME/packages/
           cp custom-packages/*.apk $IB_NAME/packages/ 2>/dev/null || true
 
+          # Download & ekstrak nikki
+          wget -O nikki.tar.gz \
+          https://github.com/Yogxx/OpenWrt-nikkiku/releases/download/v1.25.2/nikki_aarch64_cortex-a72-openwrt-25.12.tar.gz
+          tar -xzf nikki.tar.gz
+          
+          # Copy hanya nikki & luci-app-nikki APK saja
+          cp nikki*.apk $IB_NAME/packages/
+          cp luci-app-nikki*.apk $IB_NAME/packages/
+    
+
       - name: Remove Login Banners (25.12 only)
         if: github.event.inputs.version == '25.12.0' || github.event.inputs.version == '25.12.1' || github.event.inputs.version == 'snapshots'
         run: |
