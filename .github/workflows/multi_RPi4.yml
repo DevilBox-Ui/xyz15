@@ -1,4 +1,4 @@
-name: OpenWrt RPi4 Dual
+name: Multi RPi4 Dual
 
 permissions:
   contents: write
