@@ -171,7 +171,7 @@ jobs:
             ROOTFS_PARTSIZE=${{ github.event.inputs.rootfs_size }} \
             KERNEL_PARTSIZE=128 \
             PACKAGES="\
-            -dnsmasq -wget-nossl -libustream-mbedtls \
+            -dnsmasq -wget-nossl -libustream-mbedtls -luci-theme-bootstrap \
             dnsmasq-full libiwinfo-data liblua lua liblucihttp liblucihttp-lua libubus-lua libuci-lua luci-base luci-compat luci-lua-runtime \
             luci-lib-base luci-lib-ip luci-lib-jsonc luci-lib-nixio luci-mod-admin-full luci-mod-network luci-mod-status luci-mod-system \
             luci-theme-material \
