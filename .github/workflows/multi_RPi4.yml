@@ -1,4 +1,4 @@
-name: Multi RPi4 Dual
+name: Multi RPi4
 
 permissions:
   contents: write
@@ -96,8 +96,8 @@ jobs:
           wget -O luci-app-openclash_047.075_all.ipk \
           https://github.com/Yogxx/OpenClash/releases/download/v0.47.075/luci-app-openclash_0.47.075_all.ipk
 
-          wget -O luci-app-tinyfm_2.5.3-r8_all.ipk \
-          https://github.com/Yogxx/tinyfm-snapshot/releases/download/v2.5.3-8/luci-app-tinyfm_2.5.3-r8_all.ipk
+          wget -O luci-app-tinyfm_2.5.3-r9_all.ipk \
+          https://github.com/Yogxx/tinyfm-snapshot/releases/download/v2.5.3-9/luci-app-tinyfm_2.5.3-r9_all.ipk
 
           wget -O luci-app-3ginfo-lite_1.0.77_all.ipk \
           https://github.com/4IceG/luci-app-3ginfo-lite/releases/download/1.0.77-r20260215/luci-app-3ginfo-lite_1.0.77_all.ipk
@@ -123,8 +123,8 @@ jobs:
           wget -O luci-app-openclash-0.47.075.apk \
           https://github.com/Yogxx/OpenClash/releases/download/v0.47.075/luci-app-openclash-0.47.075.apk
           
-          wget -O luci-app-tinyfm-2.5.3-r8.apk \
-          https://github.com/Yogxx/tinyfm-snapshot/releases/download/v2.5.3-8/luci-app-tinyfm-2.5.3-r8.apk
+          wget -O luci-app-tinyfm-2.5.3-r9.apk \
+          https://github.com/Yogxx/tinyfm-snapshot/releases/download/v2.5.3-9/luci-app-tinyfm-2.5.3-r9.apk
 
           wget -O luci-app-3ginfo-lite-1.0.77-r20260215.apk \
           https://github.com/4IceG/luci-app-3ginfo-lite/releases/download/1.0.77-r20260215/luci-app-3ginfo-lite-1.0.77-r20260215.apk
