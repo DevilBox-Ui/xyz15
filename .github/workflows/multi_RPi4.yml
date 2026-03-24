@@ -89,14 +89,11 @@ jobs:
             LABEL="OpenWrt $VERSION by Yogxx"
           fi
 
-          FILE=$(find $IB_NAME -name os-release | head -n1)
-
-          if [ -n "$FILE" ]; then
-            sed -i "s|^OPENWRT_RELEASE=.*|OPENWRT_RELEASE=\"$LABEL\"|" "$FILE"
-            echo "Patched: $FILE"
-          else
-            echo "os-release not found, skip patch"
-          fi
+          sed -i "s|^OPENWRT_RELEASE=.*|OPENWRT_RELEASE=\"$LABEL\"|" \
+            ${{ env.IB_NAME }}/usr/lib/os-release
+          
+          echo "Patched:"
+          grep OPENWRT_RELEASE ${{ env.IB_NAME }}/usr/lib/os-release
 
       - name: Inject Extra Packages (24.10 only)
         if: github.event.inputs.version == '24.10.5' || github.event.inputs.version == '24.10.6'
