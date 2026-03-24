@@ -159,16 +159,8 @@ jobs:
       - name: Remove Login Banners
         run: |
           mkdir -p files/etc/profile.d
-
-          cat > files/etc/profile.d/00-passwordless-root.sh << 'EOF'
-          if grep -Esq '^root::' /etc/shadow ; then
-          fi
-          EOF
-
-          cat > files/etc/profile.d/apk-cheatsheet.sh << 'EOF'
-          if [ -x /usr/bin/apk ] ; then
-          fi
-          EOF
+          > files/etc/profile.d/00-passwordless-root.sh
+          > files/etc/profile.d/apk-cheatsheet.sh
 
       - name: Build Firmware
         run: |
