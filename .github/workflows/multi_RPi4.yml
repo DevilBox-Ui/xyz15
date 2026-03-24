@@ -7,29 +7,31 @@ on:
   workflow_dispatch:
     inputs:
       rootfs_size:
-        description: "RootFS size in MB"
+        description: RootFS size in MB
         default: "2048"
         required: true
+
       version:
-        description: "Select OpenWrt version"
+        description: Select firmware version
         required: true
-        default: "snapshots"
+        default: snapshots
         type: choice
         options:
-          - "24.10.5"
-          - "24.10.6"
-          - "25.12.0"
-          - "25.12.1"
-          - "snapshots"
-          - "immortalwrt-25.12.0-rc1"
+          - 24.10.5
+          - 24.10.6
+          - 25.12.0
+          - 25.12.1
+          - snapshots
+          - immortalwrt-25.12.0-rc1
+
       flavor:
-        description: "Select firmware flavor"
+        description: Select firmware flavor
         required: true
-        default: "openwrt"
+        default: openwrt
         type: choice
         options:
-          - "openwrt"
-          - "immortalwrt"
+          - openwrt
+          - immortalwrt
 
 jobs:
   build:
@@ -43,138 +45,101 @@ jobs:
           sudo apt update
           sudo apt install -y build-essential zstd wget tar
 
-      - name: Set ImageBuilder Variables
+      - name: Prepare ImageBuilder
         run: |
           VERSION="${{ github.event.inputs.version }}"
           FLAVOR="${{ github.event.inputs.flavor }}"
 
           if [ "$FLAVOR" = "immortalwrt" ]; then
-            # === ImmortalWrt ===
-            if [ "$VERSION" = "immortalwrt-25.12.0-rc1" ]; then
-              IB_NAME="immortalwrt-imagebuilder-25.12.0-rc1-bcm27xx-bcm2711.Linux-x86_64"
-              IB_URL="https://immortalwrt.kyarucloud.moe/releases/25.12.0-rc1/targets/bcm27xx/bcm2711/${IB_NAME}.tar.zst"
-            else
-              echo "ERROR: Version '$VERSION' is not available for ImmortalWrt flavor."
-              exit 1
-            fi
+            FILE_NAME="immortalwrt-imagebuilder-25.12.0-rc1-bcm27xx-bcm2711.Linux-x86_64"
+            IB_URL="https://immortalwrt.kyarucloud.moe/releases/25.12.0-rc1/targets/bcm27xx/bcm2711/${FILE_NAME}.tar.zst"
           else
-            # === OpenWrt ===
             if [ "$VERSION" = "snapshots" ]; then
-              IB_NAME="openwrt-imagebuilder-bcm27xx-bcm2711.Linux-x86_64"
-              IB_URL="https://downloads.openwrt.org/snapshots/targets/bcm27xx/bcm2711/${IB_NAME}.tar.zst"
+              FILE_NAME="openwrt-imagebuilder-bcm27xx-bcm2711.Linux-x86_64"
+              IB_URL="https://downloads.openwrt.org/snapshots/targets/bcm27xx/bcm2711/${FILE_NAME}.tar.zst"
             else
-              IB_NAME="openwrt-imagebuilder-${VERSION}-bcm27xx-bcm2711.Linux-x86_64"
-              IB_URL="https://downloads.openwrt.org/releases/${VERSION}/targets/bcm27xx/bcm2711/${IB_NAME}.tar.zst"
+              FILE_NAME="openwrt-imagebuilder-${VERSION}-bcm27xx-bcm2711.Linux-x86_64"
+              IB_URL="https://downloads.openwrt.org/releases/${VERSION}/targets/bcm27xx/bcm2711/${FILE_NAME}.tar.zst"
             fi
           fi
 
-          echo "IB_NAME=$IB_NAME" >> $GITHUB_ENV
-          echo "IB_URL=$IB_URL" >> $GITHUB_ENV
-
-      - name: Download ImageBuilder
-        run: |
           wget $IB_URL
-          tar --zstd -xf ${IB_NAME}.tar.zst
+          tar --zstd -xf ${FILE_NAME}.tar.zst
+
+          IB_NAME=$(find . -maxdepth 1 -type d -name "*imagebuilder*" | head -n1 | sed 's|./||')
+
+          echo "IB_NAME=$IB_NAME" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "FLAVOR=$FLAVOR" >> $GITHUB_ENV
 
       - name: Make uci-defaults executable
         run: chmod +x files/etc/uci-defaults/* 2>/dev/null || true
 
       - name: Patch OPENWRT_RELEASE
         run: |
-          FLAVOR="${{ github.event.inputs.flavor }}"
-          VERSION="${{ github.event.inputs.version }}"
           if [ "$FLAVOR" = "immortalwrt" ]; then
             LABEL="ImmortalWrt $VERSION by Yogxx"
           else
             LABEL="OpenWrt $VERSION by Yogxx"
           fi
-          sed -i "s|^OPENWRT_RELEASE=.*|OPENWRT_RELEASE=\"$LABEL\"|" \
-            ${{ env.IB_NAME }}/usr/lib/os-release
 
-      # ===== Version Specific Injection =====
+          FILE=$(find $IB_NAME -name os-release | head -n1)
 
-      - name: Inject Extra Packages (24.10 only)
-        if: >
-          github.event.inputs.flavor == 'openwrt' &&
-          (github.event.inputs.version == '24.10.5' || github.event.inputs.version == '24.10.6')
+          sed -i "s|^OPENWRT_RELEASE=.*|OPENWRT_RELEASE=\"$LABEL\"|" "$FILE"
+
+      - name: Inject Packages
         run: |
-          wget -O luci-app-openclash_047.075_all.ipk \
-          https://github.com/Yogxx/OpenClash/releases/download/v0.47.075/luci-app-openclash_0.47.075_all.ipk
+          PKG_EXT="apk"
 
-          wget -O luci-app-tinyfm_2.5.3-r8_all.ipk \
-          https://github.com/Yogxx/tinyfm-snapshot/releases/download/v2.5.3-8/luci-app-tinyfm_2.5.3-r8_all.ipk
+          if [[ "$VERSION" == 24.10.* ]]; then
+            PKG_EXT="ipk"
+          fi
 
-          wget -O luci-app-3ginfo-lite_1.0.77_all.ipk \
-          https://github.com/4IceG/luci-app-3ginfo-lite/releases/download/1.0.77-r20260215/luci-app-3ginfo-lite_1.0.77_all.ipk
+          wget -O luci-app-openclash.$PKG_EXT \
+          https://github.com/Yogxx/OpenClash/releases/download/v0.47.075/luci-app-openclash_0.47.075_all.$PKG_EXT
 
-          wget -O luci-app-sms-tool-js_2.0.38_all.ipk \
-          https://github.com/4IceG/luci-app-sms-tool-js/releases/download/2.0.38-r20260222/luci-app-sms-tool-js_2.0.38_all.ipk
+          wget -O luci-app-tinyfm.$PKG_EXT \
+          https://github.com/Yogxx/tinyfm-snapshot/releases/download/v2.5.3-8/luci-app-tinyfm_2.5.3-r8_all.$PKG_EXT
 
-          cp *.ipk $IB_NAME/packages/
-          cp custom-packages/*.ipk $IB_NAME/packages/ 2>/dev/null || true
+          wget -O luci-app-3ginfo-lite.$PKG_EXT \
+          https://github.com/4IceG/luci-app-3ginfo-lite/releases/download/1.0.77-r20260215/luci-app-3ginfo-lite_1.0.77_all.$PKG_EXT
 
-          wget -O nikki.tar.gz \
-          https://github.com/Yogxx/OpenWrt-nikkiku/releases/download/v1.25.2/nikki_aarch64_cortex-a72-openwrt-24.10.tar.gz
+          wget -O luci-app-sms-tool-js.$PKG_EXT \
+          https://github.com/4IceG/luci-app-sms-tool-js/releases/download/2.0.38-r20260222/luci-app-sms-tool-js_2.0.38_all.$PKG_EXT
+
+          cp *.$PKG_EXT $IB_NAME/packages/
+          cp custom-packages/*.$PKG_EXT $IB_NAME/packages/ 2>/dev/null || true
+
+          if [ "$PKG_EXT" = "ipk" ]; then
+            wget -O nikki.tar.gz \
+            https://github.com/Yogxx/OpenWrt-nikkiku/releases/download/v1.25.2/nikki_aarch64_cortex-a72-openwrt-24.10.tar.gz
+          else
+            wget -O nikki.tar.gz \
+            https://github.com/Yogxx/OpenWrt-nikkiku/releases/download/v1.25.2/nikki_aarch64_cortex-a72-openwrt-25.12.tar.gz
+          fi
+
           tar -xzf nikki.tar.gz
+          cp nikki*.$PKG_EXT $IB_NAME/packages/
+          cp luci-app-nikki*.$PKG_EXT $IB_NAME/packages/
 
-          cp nikki*.ipk $IB_NAME/packages/
-          cp luci-app-nikki*.ipk $IB_NAME/packages/
-
-      - name: Inject Extra Packages & Custom APKs (25.12 / snapshots / immortalwrt)
-        if: >
-          github.event.inputs.version == '25.12.0' ||
-          github.event.inputs.version == '25.12.1' ||
-          github.event.inputs.version == 'snapshots' ||
-          github.event.inputs.flavor == 'immortalwrt'
-        run: |
-          wget -O luci-app-openclash-0.47.075.apk \
-          https://github.com/Yogxx/OpenClash/releases/download/v0.47.075/luci-app-openclash-0.47.075.apk
-
-          wget -O luci-app-tinyfm-2.5.3-r8.apk \
-          https://github.com/Yogxx/tinyfm-snapshot/releases/download/v2.5.3-8/luci-app-tinyfm-2.5.3-r8.apk
-
-          wget -O luci-app-3ginfo-lite-1.0.77-r20260215.apk \
-          https://github.com/4IceG/luci-app-3ginfo-lite/releases/download/1.0.77-r20260215/luci-app-3ginfo-lite-1.0.77-r20260215.apk
-
-          wget -O luci-app-sms-tool-js-2.0.38-r20260222.apk \
-          https://github.com/4IceG/luci-app-sms-tool-js/releases/download/2.0.38-r20260222/luci-app-sms-tool-js-2.0.38-r20260222.apk
-
-          cp *.apk $IB_NAME/packages/
-          cp custom-packages/*.apk $IB_NAME/packages/ 2>/dev/null || true
-
-          wget -O nikki.tar.gz \
-          https://github.com/Yogxx/OpenWrt-nikkiku/releases/download/v1.25.2/nikki_aarch64_cortex-a72-openwrt-25.12.tar.gz
-          tar -xzf nikki.tar.gz
-
-          cp nikki*.apk $IB_NAME/packages/
-          cp luci-app-nikki*.apk $IB_NAME/packages/
-
-      - name: Remove Login Banners (25.12 / immortalwrt only)
-        if: >
-          github.event.inputs.version == '25.12.0' ||
-          github.event.inputs.version == '25.12.1' ||
-          github.event.inputs.version == 'snapshots' ||
-          github.event.inputs.flavor == 'immortalwrt'
+      - name: Remove Login Banners
         run: |
           mkdir -p files/etc/profile.d
 
           cat > files/etc/profile.d/00-passwordless-root.sh << 'EOF'
           if grep -Esq '^root::' /etc/shadow ; then
-          cat << INNEREOF
-          INNEREOF
           fi
           EOF
 
           cat > files/etc/profile.d/apk-cheatsheet.sh << 'EOF'
           if [ -x /usr/bin/apk ] ; then
-          cat << INNEREOF
-          INNEREOF
           fi
           EOF
 
       - name: Build Firmware
         run: |
           cd $IB_NAME
+
           make image \
             PROFILE="rpi-4" \
             ROOTFS_PARTSIZE=${{ github.event.inputs.rootfs_size }} \
@@ -203,7 +168,7 @@ jobs:
             tar jq yq vnstat2 luci-app-vnstat2" \
             FILES="../files"
 
-      - name: Upload Firmware to GitHub Release
+      - name: Upload Firmware
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.event.inputs.version }}-${{ github.event.inputs.flavor }}-${{ github.run_number }}
