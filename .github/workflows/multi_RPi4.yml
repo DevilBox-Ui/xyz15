@@ -74,9 +74,6 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "FLAVOR=$FLAVOR" >> $GITHUB_ENV
 
-      - name: Debug os-release
-        run: find $IB_NAME -name os-release 2>/dev/null || echo "not found"
-      
       - name: Make uci-defaults executable
         run: chmod +x files/etc/uci-defaults/* 2>/dev/null || true
 
@@ -92,15 +89,31 @@ jobs:
             LABEL="OpenWrt $VERSION by Yogxx"
           fi
 
+          # Coba patch langsung di IB (untuk openwrt)
           FILE=$(find $IB_NAME -name os-release | head -n1)
 
           if [ -n "$FILE" ]; then
             sed -i "s|^OPENWRT_RELEASE=.*|OPENWRT_RELEASE=\"$LABEL\"|" "$FILE"
-            echo "Patched: $FILE"
+            echo "Patched IB: $FILE"
             grep OPENWRT_RELEASE "$FILE"
-          
           else
-            echo "os-release not found, skip patch"
+            # Fallback: patch via files overlay (untuk immortalwrt)
+            echo "os-release not found in IB, using files overlay"
+            mkdir -p files/usr/lib
+            cat > files/usr/lib/os-release << EOF
+            NAME="ImmortalWrt"
+            VERSION="${IW_VERSION}"
+            ID="immortalwrt"
+            ID_LIKE="lede openwrt"
+            PRETTY_NAME="ImmortalWrt ${IW_VERSION}"
+            VERSION_ID="${IW_VERSION}"
+            HOME_URL="https://immortalwrt.org/"
+            BUG_URL="https://github.com/immortalwrt/immortalwrt"
+            SUPPORT_URL="https://github.com/immortalwrt/immortalwrt"
+            OPENWRT_RELEASE="${LABEL}"
+            EOF
+            echo "Created files/usr/lib/os-release"
+            cat files/usr/lib/os-release
           fi
 
       - name: Inject Extra Packages (24.10 only)
@@ -149,12 +162,6 @@ jobs:
           wget -O luci-app-sms-tool-js-2.0.38-r20260222.apk \
           https://github.com/4IceG/luci-app-sms-tool-js/releases/download/2.0.38-r20260222/luci-app-sms-tool-js-2.0.38-r20260222.apk
           
-          wget -O bandix-0.12.7-r1_aarch64_cortex-a72.apk \
-          https://github.com/timsaya/openwrt-bandix/releases/download/v0.12.7/bandix-0.12.7-r1_aarch64_cortex-a72.apk
-
-          wget -O luci-app-bandix-0.12.6-r1_all.apk \
-          https://github.com/timsaya/luci-app-bandix/releases/download/v0.12.6/luci-app-bandix-0.12.6-r1_all.apk
-
           cp *.apk $IB_NAME/packages/
           cp custom-packages/*.apk $IB_NAME/packages/ 2>/dev/null || true
 
