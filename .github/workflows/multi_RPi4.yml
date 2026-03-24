@@ -76,16 +76,19 @@ jobs:
         run: chmod +x files/etc/uci-defaults/* 2>/dev/null || true
 
       - name: Patch OPENWRT_RELEASE
+        if: github.event.inputs.flavor == 'openwrt'
         run: |
-          if [ "$FLAVOR" = "immortalwrt" ]; then
-            LABEL="ImmortalWrt $VERSION by Yogxx"
-          else
-            LABEL="OpenWrt $VERSION by Yogxx"
-          fi
+          VERSION="${{ github.event.inputs.version }}"
+          LABEL="OpenWrt $VERSION by Yogxx"
 
           FILE=$(find $IB_NAME -name os-release | head -n1)
 
-          sed -i "s|^OPENWRT_RELEASE=.*|OPENWRT_RELEASE=\"$LABEL\"|" "$FILE"
+          if [ -n "$FILE" ]; then
+            sed -i "s|^OPENWRT_RELEASE=.*|OPENWRT_RELEASE=\"$LABEL\"|" "$FILE"
+            echo "Patched: $FILE"
+          else
+            echo "os-release not found, skip patch"
+          fi
 
       - name: Inject Packages
         run: |
