@@ -129,7 +129,7 @@ jobs:
           wget -O luci-app-3ginfo-lite-1.0.77-r20260215.apk \
           https://github.com/4IceG/luci-app-3ginfo-lite/releases/download/1.0.77-r20260215/luci-app-3ginfo-lite-1.0.77-r20260215.apk
 
-          wget -O luci-app-3ginfo-lite-1.0.77-r20260215.apk \
+          wget -O luci-app-sms-tool-js-2.0.38-r20260222.apk \
           https://github.com/4IceG/luci-app-sms-tool-js/releases/download/2.0.38-r20260222/luci-app-sms-tool-js-2.0.38-r20260222.apk
           
           cp *.apk $IB_NAME/packages/
