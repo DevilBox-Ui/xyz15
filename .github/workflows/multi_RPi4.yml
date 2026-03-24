@@ -97,22 +97,11 @@ jobs:
             echo "Patched IB: $FILE"
             grep OPENWRT_RELEASE "$FILE"
           else
-            # Fallback: patch via files overlay (untuk immortalwrt)
             echo "os-release not found in IB, using files overlay"
             mkdir -p files/usr/lib
-            cat > files/usr/lib/os-release << EOF
-            NAME="ImmortalWrt"
-            VERSION="${IW_VERSION}"
-            ID="immortalwrt"
-            ID_LIKE="lede openwrt"
-            PRETTY_NAME="ImmortalWrt ${IW_VERSION}"
-            VERSION_ID="${IW_VERSION}"
-            HOME_URL="https://immortalwrt.org/"
-            BUG_URL="https://github.com/immortalwrt/immortalwrt"
-            SUPPORT_URL="https://github.com/immortalwrt/immortalwrt"
-            OPENWRT_RELEASE="${LABEL}"
-            EOF
-            echo "Created files/usr/lib/os-release"
+            printf 'NAME="ImmortalWrt"\nVERSION="%s"\nID="immortalwrt"\nID_LIKE="lede openwrt"\nPRETTY_NAME="ImmortalWrt %s"\nVERSION_ID="%s"\nHOME_URL="https://immortalwrt.org/"\nBUG_URL="https://github.com/immortalwrt/immortalwrt"\nSUPPORT_URL="https://github.com/immortalwrt/immortalwrt"\nOPENWRT_RELEASE="%s"\n' \
+              "$IW_VERSION" "$IW_VERSION" "$IW_VERSION" "$LABEL" > files/usr/lib/os-release
+            echo "Created files/usr/lib/os-release:"
             cat files/usr/lib/os-release
           fi
 
