@@ -1,4 +1,4 @@
-name: Multi RPi4 X
+name: Multi RPi4
 
 permissions:
   contents: write
@@ -89,8 +89,12 @@ jobs:
             LABEL="OpenWrt $VERSION by Yogxx"
           fi
 
-          echo "FLAVOR_LABEL=$LABEL" >> $GITHUB_ENV
-          echo "Label: $LABEL"
+          mkdir -p files/etc/uci-defaults
+          printf '#!/bin/sh\nsed -i "s|^OPENWRT_RELEASE=.*|OPENWRT_RELEASE=\"'"${LABEL}"'\"|" /usr/lib/os-release\nexit 0\n' \
+            > files/etc/uci-defaults/98-patch-release.sh
+
+          echo "Created 98-patch-release.sh:"
+          cat files/etc/uci-defaults/98-patch-release.sh
 
       - name: Inject Extra Packages (24.10 only)
         if: github.event.inputs.version == '24.10.5' || github.event.inputs.version == '24.10.6'
@@ -188,19 +192,6 @@ jobs:
             tar jq yq vnstat2 luci-app-vnstat2" \
             FILES="../files"
 
-      - name: Patch OPENWRT_RELEASE
-        run: |
-          # Patch di rootfs hasil build (file lengkap tersedia setelah make image)
-          FILE=$(find $IB_NAME/bin/targets -name os-release | head -n1)
-
-          if [ -n "$FILE" ]; then
-            sed -i "s|^OPENWRT_RELEASE=.*|OPENWRT_RELEASE=\"${{ env.FLAVOR_LABEL }}\"|" "$FILE"
-            echo "Patched: $FILE"
-            grep OPENWRT_RELEASE "$FILE"
-          else
-            echo "os-release not found in build output"
-          fi
-
       - name: Upload Firmware
         uses: softprops/action-gh-release@v2
         with:
@@ -210,3 +201,4 @@ jobs:
             ${{ env.IB_NAME }}/bin/targets/bcm27xx/bcm2711/*ext4-factory.img.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
