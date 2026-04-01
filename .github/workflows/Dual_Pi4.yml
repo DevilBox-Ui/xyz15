@@ -55,15 +55,15 @@ jobs:
           wget "$IB_URL"
           tar --zstd -xf "${IB_NAME}.tar.zst"
 
-          EXTRACTED=$(tar --zstd -tf "${IB_NAME}.tar.zst" 2>/dev/null | head -1 | cut -d'/' -f1 || true)
-          echo "Folder hasil ekstrak: $EXTRACTED"
+          echo "=== Isi folder IB ==="
+          ls "$IB_NAME/"
 
-          if [ "$EXTRACTED" != "$IB_NAME" ]; then
-            echo "WARNING: Nama folder berbeda! Expected=$IB_NAME Actual=$EXTRACTED"
-            echo "IB_NAME=$EXTRACTED" >> $GITHUB_ENV
-          fi
-
-          ls "$EXTRACTED/usr/lib/os-release"
+          echo "=== Cek os-release ==="
+          ls "$IB_NAME/usr/lib/os-release" && echo "OK" || {
+            echo "os-release tidak ada, cek struktur:"
+            find "$IB_NAME" -name "os-release" 2>/dev/null
+            exit 1
+          }
 
       - name: Make uci-defaults executable
         run: chmod +x files/etc/uci-defaults/* 2>/dev/null || true
