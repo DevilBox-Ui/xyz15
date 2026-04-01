@@ -52,34 +52,11 @@ jobs:
 
       - name: Download ImageBuilder
         run: |
-          wget "$IB_URL"
-          tar --zstd -xf "${IB_NAME}.tar.zst"
-
-          echo "=== Isi folder IB ==="
-          ls "$IB_NAME/"
-
-          echo "=== Cek os-release ==="
-          ls "$IB_NAME/usr/lib/os-release" && echo "OK" || {
-            echo "os-release tidak ada, cek struktur:"
-            find "$IB_NAME" -name "os-release" 2>/dev/null
-            exit 1
-          }
+          wget $IB_URL
+          tar --zstd -xf ${IB_NAME}.tar.zst
 
       - name: Make uci-defaults executable
         run: chmod +x files/etc/uci-defaults/* 2>/dev/null || true
-
-      - name: Patch OPENWRT_RELEASE
-        run: |
-          # Verifikasi file ada sebelum patch
-          if [ ! -f "$IB_NAME/usr/lib/os-release" ]; then
-            echo "ERROR: os-release not found at $IB_NAME/usr/lib/os-release"
-            ls "$IB_NAME/usr/lib/" || true
-            exit 1
-          fi
-          sed -i "s|^OPENWRT_RELEASE=.*|OPENWRT_RELEASE=\"OpenWrt ${{ github.event.inputs.version }} by Yogxx\"|" \
-            "$IB_NAME/usr/lib/os-release"
-          echo "Patched successfully:"
-          grep OPENWRT_RELEASE "$IB_NAME/usr/lib/os-release"
 
       # ===== Version Specific Injection =====
 
