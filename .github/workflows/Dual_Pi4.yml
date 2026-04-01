@@ -55,7 +55,7 @@ jobs:
           wget "$IB_URL"
           tar --zstd -xf "${IB_NAME}.tar.zst"
 
-          EXTRACTED=$(tar --zstd -tf "${IB_NAME}.tar.zst" | head -1 | cut -d'/' -f1)
+          EXTRACTED=$(tar --zstd -tf "${IB_NAME}.tar.zst" 2>/dev/null | head -1 | cut -d'/' -f1 || true)
           echo "Folder hasil ekstrak: $EXTRACTED"
 
           if [ "$EXTRACTED" != "$IB_NAME" ]; then
