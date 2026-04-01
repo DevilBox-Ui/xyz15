@@ -60,8 +60,16 @@ jobs:
 
       - name: Patch OPENWRT_RELEASE
         run: |
+          # Verifikasi file ada sebelum patch
+          if [ ! -f "$IB_NAME/usr/lib/os-release" ]; then
+            echo "ERROR: os-release not found at $IB_NAME/usr/lib/os-release"
+            ls "$IB_NAME/usr/lib/" || true
+            exit 1
+          fi
           sed -i "s|^OPENWRT_RELEASE=.*|OPENWRT_RELEASE=\"OpenWrt ${{ github.event.inputs.version }} by Yogxx\"|" \
-            ${{ env.IB_NAME }}/usr/lib/os-release
+            "$IB_NAME/usr/lib/os-release"
+          echo "Patched successfully:"
+          grep OPENWRT_RELEASE "$IB_NAME/usr/lib/os-release"
 
       # ===== Version Specific Injection =====
 
@@ -120,7 +128,7 @@ jobs:
           wget -O bandix-0.12.7-r1-aarch64-cortex-a72.apk \
           https://github.com/timsaya/openwrt-bandix/releases/download/v0.12.7/bandix-0.12.7-r1_aarch64_cortex-a72.apk
 
-          wget -O luci-app-bandix-0.12.6-r1.apk
+          wget -O luci-app-bandix-0.12.6-r1.apk \
           https://github.com/timsaya/luci-app-bandix/releases/download/v0.12.6/luci-app-bandix-0.12.6-r1_all.apk
           
           cp *.apk $IB_NAME/packages/
