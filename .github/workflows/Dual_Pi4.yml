@@ -8,7 +8,7 @@ on:
     inputs:
       rootfs_size:
         description: "RootFS size in MB"
-        default: "2048"
+        default: "1024"
         required: true
       version:
         description: "Select OpenWrt version"
