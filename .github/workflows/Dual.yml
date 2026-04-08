@@ -35,15 +35,30 @@ jobs:
         run: |
           VERSION="${{ github.event.inputs.version }}"
 
-          IB_NAME="openwrt-imagebuilder-${VERSION}-bcm27xx-bcm2711.Linux-x86_64"
-          IB_URL="https://downloads.openwrt.org/releases/${VERSION}/targets/bcm27xx/bcm2711/${IB_NAME}.tar.zst"
+          if [ "$VERSION" = "snapshots" ]; then
+            IB_NAME="openwrt-imagebuilder-bcm27xx-bcm2711.Linux-x86_64"
+            IB_URL="https://downloads.openwrt.org/snapshots/targets/bcm27xx/bcm2711/${IB_NAME}.tar.zst"
+          else
+            IB_NAME="openwrt-imagebuilder-${VERSION}-bcm27xx-bcm2711.Linux-x86_64"
+            IB_URL="https://downloads.openwrt.org/releases/${VERSION}/targets/bcm27xx/bcm2711/${IB_NAME}.tar.zst"
+          fi
 
           echo "IB_NAME=$IB_NAME" >> $GITHUB_ENV
           echo "IB_URL=$IB_URL" >> $GITHUB_ENV
 
+      - name: Cache ImageBuilder Tarball
+        if: github.event.inputs.version != 'snapshots'
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.IB_NAME }}.tar.zst
+          key: ib-${{ github.event.inputs.version }}
+
       - name: Download ImageBuilder
         run: |
-          wget $IB_URL
+          if [ ! -f "${IB_NAME}.tar.zst" ]; then
+            wget $IB_URL
+          fi
+
           tar --zstd -xf ${IB_NAME}.tar.zst
 
       - name: Make uci-defaults executable
