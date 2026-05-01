@@ -56,14 +56,14 @@ jobs:
           path: |
             ${{ env.IB_NAME }}
             ${{ env.IB_NAME }}.tar.zst
-          key: ib-${{ github.event.inputs.version }}-v3
+          key: ib-${{ github.event.inputs.version }}-v5
 
       - name: Cache Downloaded Packages
         if: github.event.inputs.version != 'snapshots'
         uses: actions/cache@v4
         with:
           path: dl-cache
-          key: packages-${{ github.event.inputs.version }}-v1
+          key: packages-${{ github.event.inputs.version }}-v5
 
       - name: Download ImageBuilder
         run: |
