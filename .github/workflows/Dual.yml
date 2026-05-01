@@ -114,6 +114,7 @@ jobs:
               "https://github.com/Yogxx/OpenClash/releases/download/v0.47.075/luci-app-openclash-0.47.075.apk"
               "https://github.com/Yogxx/tinyfm-snapshot/releases/download/v2.5.3-9/luci-app-tinyfm-2.5.3-r9.apk"
               "https://github.com/4IceG/luci-app-3ginfo-lite/releases/download/1.0.77-r20260215/luci-app-3ginfo-lite-1.0.77-r20260215.apk"
+              "https://github.com/4IceG/luci-app-sms-tool-js/releases/download/2.0.38-r20260222/luci-app-sms-tool-js-2.0.38-r20260222.apk"
               "https://github.com/Yogxx/openwrt-bandix/releases/download/v0.12.8/bandix-0.12.8-r1-aarch64-cortex-a72.apk"
               "https://github.com/Yogxx/luci-app-bandix/releases/download/v0.12.7/luci-app-bandix-0.12.7-r1.apk"
             )
